@@ -1,0 +1,29 @@
+{
+  "name": "tiger-sleepy",
+  "version": "1.0.0",
+  "description": "Back-end para manejar los vídeos descargados y poder verlos en remoto",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./src/index",
+    "start:dev": "nodemon --inspect ./src/index",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@raspberrypi:Fran/tiger-sleepy.git"
+  },
+  "author": "Paco",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^4.13.1",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.8.0",
+    "nodemon": "^1.13.3"
+  },
+  "dependencies": {
+    "boom": "^7.1.1",
+    "glue": "^5.0.0",
+    "hapi": "^17.1.1",
+    "joi": "^13.0.2"
+  }
+}
