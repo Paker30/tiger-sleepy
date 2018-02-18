@@ -7,7 +7,7 @@ const FilterHideFiles = (file) => file.match(/^[^.].*/);  //No tengo que dejar p
 
 const Play = {
   execute(path, video) {
-    return StartVideo(`${path}video`)
+    return StartVideo(`${path}`)
       .then(({ stdout, stderr }) => `${video} reproduciendo`)
       .catch(({ stdout, stderr }) => {
         return Boom.conflict(stderr);
@@ -40,7 +40,7 @@ const GetFilms = (request, reply) =>
 const LaunchAction = (request, reply) => {
 
   const acction = Actions.filter(({ label }) => label === request.params.action);
-  return acction[0].execute(`${basePath}/${request.body.path}/`, request.params.video);
+  return acction[0].execute(`${basePath}${request.payload.path}`, request.params.video);
 };
 
 module.exports = { GetFilms, LaunchAction };
