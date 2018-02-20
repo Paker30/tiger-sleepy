@@ -18,7 +18,7 @@ const Play = {
 
 const Stop = {
   execute(video) {
-    return StopVideo(path, video)
+    return StopVideo(video)
       .then(({ stdout, stderr }) => `${video} parado`)
       .catch(({ stdout, stderr }) => {
         return Boom.conflict(stderr);
