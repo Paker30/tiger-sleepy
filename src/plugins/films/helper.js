@@ -16,18 +16,20 @@ const ReadDir = (path) =>
     });
   });
 
+const CheckDir = (path) => fs.lstatSync(path).isDirectory();
+
 const StartVideo = async (video) => {
   return new Promise((resolve, reject) => {
     const childProcess = exec(`omxplayer -o hdmi ${video}`, (error, stdout, stderr) => {
       if (error) {
-        reject({ stdout: '', stderr: `No es posible arrancar: ${video}`});
+        reject({ stdout: '', stderr: `No es posible arrancar: ${video}` });
       }
     });
     setTimeout(() => {
-      resolve({ stdout: `Reproduciendo: ${video}`, stderr: ''});
+      resolve({ stdout: `Reproduciendo: ${video}`, stderr: '' });
     }, 500);
   });
 };
 const StopVideo = async (video) => await exec(`killall omxplayer.bin`);
 
-module.exports = { ReadDir, StartVideo, StopVideo };
+module.exports = { ReadDir, StartVideo, StopVideo, CheckDir };
