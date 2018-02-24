@@ -8,7 +8,7 @@ const manifest = {
   },
   register: {
     plugins: [
-      require('./plugins/films/films.plugin.js')
+      require('./plugins/films/films.plugins')
     ],
     options: {
       once: true
