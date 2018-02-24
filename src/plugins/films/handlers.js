@@ -31,7 +31,7 @@ const Stop = {
 const Actions = [Play, Stop];
 
 const GetFilms = (request, reply) => {
-  const path = request.params.dirPath ? request.params.dirPath : Config.basePath;
+  const path = request.params.dirPath ? `${Config.basePath}/${request.params.dirPath}` : Config.basePath;
   return ReadDir(path)
     .then((files) => files.filter(FilterHideFiles))
     .then((files) => files.map((file) => ({ 'original': file, 'pretty': file })))
