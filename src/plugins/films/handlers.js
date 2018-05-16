@@ -3,12 +3,15 @@ const { basePath } = require('../../config/index');
 const { ReadDir, StartVideo, StopVideo, CheckDir } = require('./helper');
 const Boom = require('boom');
 const { assign } = require('lodash');
+const { getOr } = require('lodash/fp');
 const Config = require('../../config/index');
+const getPath = getOr('/', 'payload.path');
 const FilterHideFiles = (file) => file.match(/^[^.].*/);  //No tengo que dejar pasar nada que empiece por .
 
 const Play = {
   execute(path, video) {
-    return StartVideo(`${path}`)
+    console.log(`path ${path} video ${video}`);
+    return StartVideo(`${path}${video}`)
       .then(({ stdout, stderr }) => `${video} reproduciendo`)
       .catch(({ stdout, stderr }) => {
         return Boom.conflict(stderr);
@@ -44,7 +47,7 @@ const GetFilms = (request, reply) => {
 const LaunchAction = (request, reply) => {
 
   const acction = Actions.filter(({ label }) => label === request.params.action);
-  return acction[0].execute(`${basePath}${request.payload.path}`, request.params.video);
+  return acction[0].execute(`${basePath}${getPath(request)}`, request.params.video);
 };
 
 module.exports = { GetFilms, LaunchAction };

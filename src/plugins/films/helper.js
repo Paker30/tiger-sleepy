@@ -19,11 +19,15 @@ const ReadDir = (path) =>
 
 const CheckDir = (path) => fs.lstatSync(path).isDirectory();
 
-const AdaptPath = (path) => path.replace(/\s/g,'\\ ').replace(/\[/g,'\\[').replace(/\]/g,'\\]').replace(/\(/g,'\\(').replace(/\)/g,'\\)');
+const AdaptPath = (path) => path
+  .replace(/\s/g,'\\ ')
+  .replace(/\[/g,'\\[')
+  .replace(/\]/g,'\\]')
+  .replace(/\(/g,'\\(')
+  .replace(/\)/g,'\\)');
 
 const StartVideo = async (video) => {
-  console.log(video);
-  console.log(AdaptPath(video));
+  console.log('reproducir' + AdaptPath(video));
   return new Promise((resolve, reject) => {
     const childProcess = exec(`omxplayer -o hdmi ${AdaptPath(video)}`, (error, stdout, stderr) => {
       if (error) {
