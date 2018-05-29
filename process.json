@@ -1,0 +1,13 @@
+{
+    "apps": [{
+        "name": "tiger-sleepy",
+        "script": "./src/index.js",
+        "watch": true,
+        "env": {
+            "BASE_PATH": "."
+        },
+        "env_producction": {
+            "BASE_PATH": "/mnt/Video/"
+        }
+    }]
+}
