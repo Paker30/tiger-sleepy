@@ -1,4 +1,23 @@
 'use strict';
-const hapiServer = require('./server');
 
-hapiServer.startServer();
+const server = require('../src/server');
+
+const manifest = {
+  server: {
+    port: 8000,
+  },
+  register: {
+    plugins: [
+      require('./plugins/films/films.plugins')
+    ],
+    options: {
+      once: true
+    }
+  }
+};
+
+const options = {
+  relativeTo: __dirname,
+};
+
+server.startServer(manifest, options);

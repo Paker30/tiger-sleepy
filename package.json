@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node ./src/index",
     "start:dev": "nodemon --inspect ./src/index",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --coverage"
   },
   "repository": {
     "type": "git",
@@ -18,6 +18,7 @@
     "eslint": "^4.13.1",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.8.0",
+    "jest": "^23.2.0",
     "nodemon": "^1.13.3"
   },
   "dependencies": {

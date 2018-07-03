@@ -2,32 +2,15 @@
 
 const Glue = require('glue');
 
-const manifest = {
-  server: {
-    port: 8000,
-  },
-  register: {
-    plugins: [
-      require('./plugins/films/films.plugins')
-    ],
-    options: {
-      once: true
-    }
-  }
-};
-
-const options = {
-  relativeTo: __dirname,
-};
-
-const startServer = async () => {
+const startServer = async (manifest, options) => {
   try {
     const server = await Glue.compose(manifest, options);
     await server.start();
     console.log('hapi days!');
+    return server;
   } catch (err) {
     console.error(err);
-    process.exit(1);
+    // process.exit(1);
   }
 };
 
