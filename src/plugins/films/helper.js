@@ -3,18 +3,10 @@
 const fs = require('fs');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
-const Path = require('path');
 
 const ReadDir = (path) =>
   new Promise((resolve, reject) => {
-    fs.readdir(path, (err, files) => {
-      if (err) {
-        reject(err);
-      }
-      else {
-        resolve(files);
-      }
-    });
+    fs.readdir(path, (err, files) => err ? reject(err): resolve(files));
   });
 
 const CheckDir = (path) => fs.lstatSync(path).isDirectory();
