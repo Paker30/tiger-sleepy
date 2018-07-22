@@ -1,7 +1,8 @@
 'use strict';
 
 const Joi = require('joi');
-const { GetFilms, LaunchAction } = require('./handlers');
+const { readFilmsInDir, LaunchAction } = require('./handlers');
+const { either } = require('sanctuary');
 
 const films = {
   name: 'films',
@@ -13,7 +14,12 @@ const films = {
         cors: true,
       },
       path: '/video/{dirPath*}',
-      handler: GetFilms
+      handler: (request, h) => new Promise((resolve, reject) => {
+        either
+          (() => reject(new Error('Error al recuperar los ficheros')))
+          (films => resolve(films))
+          (readFilmsInDir(request.params.dirPath));
+      })
     });
     server.route({
       method: 'POST',
@@ -21,12 +27,12 @@ const films = {
       config: {
         cors: true,
         validate:
-          {
-            params: {
-              action: Joi.string().lowercase().valid(['play', 'stop', 'forward', 'rewind']),
-              video: Joi.string()
-            }
+        {
+          params: {
+            action: Joi.string().lowercase().valid(['play', 'stop', 'forward', 'rewind']),
+            video: Joi.string()
           }
+        }
       },
       handler: LaunchAction
     });

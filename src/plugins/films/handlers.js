@@ -1,12 +1,22 @@
 'use strict';
-const { basePath } = require('../../config/index');
-const { ReadDir, StartVideo, StopVideo, CheckDir } = require('./helper');
+const fs = require('fs');
 const Boom = require('boom');
 const { assign } = require('lodash');
+const { toEither, pipe, map, filter, compose } = require('sanctuary');
+const { basePath } = require('../../config/index');
+const { StartVideo, StopVideo } = require('./helper');
+
 const { getOr } = require('lodash/fp');
-const Config = require('../../config/index');
 const getPath = getOr('/', 'payload.path');
-const FilterHideFiles = (file) => file.match(/^[^.].*/);  //No tengo que dejar pasar nada que empiece por .
+const FilterHideFiles = (file) => /^[^.].*/.test(file);  //No tengo que dejar pasar nada que empiece por .
+const filmPath = (dirPath) => dirPath ? `${basePath}/${dirPath}` : basePath;
+const pretiffyNames = (names) => names.map(name => ({ 'original': name, 'pretty': name }));
+const addDirectory = (files) => files.map(file => assign(file, { isDirectory: fs.lstatSync(file.original).isDirectory() }));
+const readDir = compose((path) => fs.readdirSync(path).map(dir => path.concat(`/${dir}`)))(filmPath);
+const trace = (msg) => (x) => {
+  console.log(msg, x.value);
+  return x;
+};
 
 const Play = {
   execute(path, video) {
@@ -32,17 +42,13 @@ const Stop = {
 };
 
 const Actions = [Play, Stop];
-
-const GetFilms = (request, reply) => {
-  const path = request.params.dirPath ? `${Config.basePath}/${request.params.dirPath}` : Config.basePath;
-  return ReadDir(path)
-    .then((files) => files.filter(FilterHideFiles))
-    .then((files) => files.map((file) => ({ 'original': file, 'pretty': file })))
-    .then((files) => files.map((file) => assign(file, { isDirectory: CheckDir(`${path}/${file.original}`) })))
-    .catch((err) => {
-      throw new Error('Error al recuperar los ficheros');
-    });
-};
+const readFilmsInDir = pipe([
+  toEither(null),
+  map(readDir),
+  map(filter(FilterHideFiles)),
+  map(pretiffyNames),
+  map(addDirectory),
+]);
 
 const LaunchAction = (request, reply) => {
 
@@ -50,4 +56,4 @@ const LaunchAction = (request, reply) => {
   return acction[0].execute(`${basePath}${getPath(request)}`, request.params.video);
 };
 
-module.exports = { GetFilms, LaunchAction };
+module.exports = { readFilmsInDir, LaunchAction };
