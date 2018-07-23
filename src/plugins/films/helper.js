@@ -4,13 +4,6 @@ const fs = require('fs');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
-const ReadDir = (path) =>
-  new Promise((resolve, reject) => {
-    fs.readdir(path, (err, files) => err ? reject(err): resolve(files));
-  });
-
-const CheckDir = (path) => fs.lstatSync(path).isDirectory();
-
 const AdaptPath = (path) => path
   .replace(/\s/g,'\\ ')
   .replace(/\[/g,'\\[')
@@ -18,7 +11,7 @@ const AdaptPath = (path) => path
   .replace(/\(/g,'\\(')
   .replace(/\)/g,'\\)');
 
-const StartVideo = async (video) => {
+const startVideo = async (video) => {
   console.log('reproducir' + AdaptPath(video));
   return new Promise((resolve, reject) => {
     const childProcess = exec(`omxplayer -o hdmi ${AdaptPath(video)}`, (error, stdout, stderr) => {
@@ -31,6 +24,6 @@ const StartVideo = async (video) => {
     }, 500);
   });
 };
-const StopVideo = async (video) => await exec(`killall omxplayer.bin`);
+const stopVideo = async (video) => await exec(`killall omxplayer.bin`);
 
-module.exports = { ReadDir, StartVideo, StopVideo, CheckDir };
+module.exports = { startVideo, stopVideo };

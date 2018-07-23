@@ -4,7 +4,7 @@ const Boom = require('boom');
 const { assign } = require('lodash');
 const { toEither, pipe, map, filter, compose } = require('sanctuary');
 const { basePath } = require('../../config/index');
-const { StartVideo, StopVideo } = require('./helper');
+const { startVideo, stopVideo } = require('./helper');
 
 const { getOr } = require('lodash/fp');
 const getPath = getOr('/', 'payload.path');
@@ -21,7 +21,7 @@ const trace = (msg) => (x) => {
 const Play = {
   execute(path, video) {
     console.log(`path ${path} video ${video}`);
-    return StartVideo(`${path}${video}`)
+    return startVideo(`${path}${video}`)
       .then(({ stdout, stderr }) => `${video} reproduciendo`)
       .catch(({ stdout, stderr }) => {
         return Boom.conflict(stderr);
@@ -32,7 +32,7 @@ const Play = {
 
 const Stop = {
   execute(video) {
-    return StopVideo(video)
+    return stopVideo(video)
       .then(({ stdout, stderr }) => `${video} parado`)
       .catch(({ stdout, stderr }) => {
         return Boom.conflict(stderr);
