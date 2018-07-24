@@ -1,6 +1,6 @@
 {
   "name": "tiger-sleepy",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Back-end para manejar los vídeos descargados y poder verlos en remoto",
   "main": "index.js",
   "scripts": {
