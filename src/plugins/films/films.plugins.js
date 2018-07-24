@@ -1,8 +1,12 @@
 'use strict';
 
 const Joi = require('joi');
-const { readFilmsInDir, LaunchAction } = require('./handlers');
-const { either } = require('sanctuary');
+const { readFilmsInDir, actions } = require('./handlers');
+const { either, compose: B, filter } = require('sanctuary');
+const { getOr } = require('lodash/fp');
+const getPath = getOr('/', 'payload.path');
+const head = a => a[0];
+const A = f => x => f(x);
 
 const films = {
   name: 'films',
@@ -16,8 +20,8 @@ const films = {
       path: '/video/{dirPath*}',
       handler: (request, h) => new Promise((resolve, reject) => {
         either
-          (() => reject(new Error('Error al recuperar los ficheros')))
-          (films => resolve(films))
+          (reject)
+          (resolve)
           (readFilmsInDir(request.params.dirPath));
       })
     });
@@ -29,12 +33,15 @@ const films = {
         validate:
         {
           params: {
-            action: Joi.string().lowercase().valid(['play', 'stop', 'forward', 'rewind']),
-            video: Joi.string()
+            action: Joi.string().lowercase().valid(['play', 'stop', 'forward', 'rewind']).required(),
+            video: Joi.string().required()
           }
         }
       },
-      handler: LaunchAction
+      handler: (request, reply) => B
+        (B((act) => act.execute(`${basePath}${getPath(request)}`, request.params.video))(head))
+        (filter(({ label }) => label === request.params.action))
+        (request.params.video)
     });
   }
 };

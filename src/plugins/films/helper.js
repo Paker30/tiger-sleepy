@@ -1,17 +1,16 @@
 'use strict';
 
-const fs = require('fs');
-const util = require('util');
-const exec = util.promisify(require('child_process').exec);
+const { promisify } = require('util');
+const exec = promisify(require('child_process').exec);
 
 const AdaptPath = (path) => path
-  .replace(/\s/g,'\\ ')
-  .replace(/\[/g,'\\[')
-  .replace(/\]/g,'\\]')
-  .replace(/\(/g,'\\(')
-  .replace(/\)/g,'\\)');
+  .replace(/\s/g, '\\ ')
+  .replace(/\[/g, '\\[')
+  .replace(/\]/g, '\\]')
+  .replace(/\(/g, '\\(')
+  .replace(/\)/g, '\\)');
 
-const startVideo = async (video) => {
+const startVideo = (video) => {
   console.log('reproducir' + AdaptPath(video));
   return new Promise((resolve, reject) => {
     const childProcess = exec(`omxplayer -o hdmi ${AdaptPath(video)}`, (error, stdout, stderr) => {
@@ -24,6 +23,7 @@ const startVideo = async (video) => {
     }, 500);
   });
 };
+
 const stopVideo = async (video) => await exec(`killall omxplayer.bin`);
 
 module.exports = { startVideo, stopVideo };

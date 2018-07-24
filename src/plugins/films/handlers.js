@@ -6,8 +6,6 @@ const { toEither, pipe, map, filter, compose } = require('sanctuary');
 const { basePath } = require('../../config/index');
 const { startVideo, stopVideo } = require('./helper');
 
-const { getOr } = require('lodash/fp');
-const getPath = getOr('/', 'payload.path');
 const FilterHideFiles = (file) => /^[^.].*/.test(file);  //No tengo que dejar pasar nada que empiece por .
 const filmPath = (dirPath) => dirPath ? `${basePath}/${dirPath}` : basePath;
 const pretiffyNames = (names) => names.map(name => ({ 'original': name, 'pretty': name }));
@@ -23,37 +21,28 @@ const Play = {
     console.log(`path ${path} video ${video}`);
     return startVideo(`${path}${video}`)
       .then(({ stdout, stderr }) => `${video} reproduciendo`)
-      .catch(({ stdout, stderr }) => {
-        return Boom.conflict(stderr);
-      });
+      .catch(({ stdout, stderr }) => Boom.conflict(stderr));
   },
   label: 'play',
 };
 
 const Stop = {
   execute(video) {
+    console.log(`stop video ${video}`);
     return stopVideo(video)
       .then(({ stdout, stderr }) => `${video} parado`)
-      .catch(({ stdout, stderr }) => {
-        return Boom.conflict(stderr);
-      });
+      .catch(({ stdout, stderr }) => Boom.conflict(stderr));
   },
   label: 'stop',
 };
 
-const Actions = [Play, Stop];
+const actions = [Play, Stop];
 const readFilmsInDir = pipe([
-  toEither(null),
+  toEither(Boom.conflict('Error reading the path')),
   map(readDir),
   map(filter(FilterHideFiles)),
   map(pretiffyNames),
   map(addDirectory),
 ]);
 
-const LaunchAction = (request, reply) => {
-
-  const acction = Actions.filter(({ label }) => label === request.params.action);
-  return acction[0].execute(`${basePath}${getPath(request)}`, request.params.video);
-};
-
-module.exports = { readFilmsInDir, LaunchAction };
+module.exports = { readFilmsInDir, actions };
