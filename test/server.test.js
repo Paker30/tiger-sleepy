@@ -29,13 +29,4 @@ describe('***** SERVER *****', () => {
       done();
     });
   });
-
-  it('Should fail starting a server', (done) => {
-
-    startServer().then((server) => {
-
-      expect(server).toBeUndefined();
-      done();
-    });
-  });
 });
