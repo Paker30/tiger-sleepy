@@ -26,7 +26,7 @@ const trace = (msg) => (x) => {
 const Play = {
   execute(path, video) {
     console.log(`path ${path} video ${video}`);
-    return startVideo(`${path}${video}`)
+    return startVideo('omxplayer -o hdmi ')(`${path}${video}`)
       .then(({ stdout, stderr }) => `${video} reproduciendo`)
       .catch(({ stdout, stderr }) => Boom.conflict(stderr));
   },
@@ -36,7 +36,7 @@ const Play = {
 const Stop = {
   execute(video) {
     console.log(`stop video ${video}`);
-    return stopVideo(video)
+    return stopVideo('killall omxplayer.bin')(video)
       .then(({ stdout, stderr }) => `${video} parado`)
       .catch(({ stdout, stderr }) => Boom.conflict(stderr));
   },
