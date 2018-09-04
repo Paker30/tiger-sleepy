@@ -18,17 +18,11 @@ const readDir = (path) => {
   }
 };
 const scanDir = B(readDir)(resolveBasePath);
-const trace = (msg) => (x) => {
-  console.log(msg, x.value);
-  return x;
-};
 
 const Play = {
   execute(path, video) {
     console.log(`path ${path} video ${video}`);
-    return startVideo('omxplayer -o hdmi ')(`${path}${video}`)
-      .then(({ stdout, stderr }) => `${video} reproduciendo`)
-      .catch(({ stdout, stderr }) => Boom.conflict(stderr));
+    return startVideo('omxplayer -o hdmi ')(`${path}${video}`);
   },
   label: 'play',
 };
@@ -36,9 +30,7 @@ const Play = {
 const Stop = {
   execute(video) {
     console.log(`stop video ${video}`);
-    return stopVideo('killall omxplayer.bin')(video)
-      .then(({ stdout, stderr }) => `${video} parado`)
-      .catch(({ stdout, stderr }) => Boom.conflict(stderr));
+    return stopVideo('killall omxplayer.bin')(video);
   },
   label: 'stop',
 };

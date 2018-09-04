@@ -1,6 +1,10 @@
 'use strict';
 
-const handler = require('../src/plugins/films/handlers');
+const Proxyquire = require('proxyquire');
+const handler = Proxyquire('../src/plugins/films/handlers', {
+  startVideo: (cmd) => (video) => Promise.resolve()
+  , stopVideo: (cmd) => (video) => Promise.reject({stderr: 'There has been an erro'})
+});
 const { either } = require('sanctuary');
 
 describe('***** FILM HANDLER *****', () => {
@@ -34,4 +38,8 @@ describe('***** FILM HANDLER *****', () => {
     ((films) => films)
     (handler.readFilmsInDir('this location does not exits'));
   });
+
+  it('playing a film', () => handler.actions[0].execute('path to film', 'Man on fire'));
+
+  it('stoping a film', (done) => handler.actions[1].execute('path to film', 'Man on fire'));
 });
