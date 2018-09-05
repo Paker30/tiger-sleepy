@@ -1,6 +1,7 @@
 'use strict';
 
 const Joi = require('joi');
+const { basePath } = require('./../../config');
 const { readFilmsInDir, actions } = require('./handlers');
 const { either, compose: B, filter } = require('sanctuary');
 const { getOr } = require('lodash/fp');
@@ -41,7 +42,7 @@ const films = {
       handler: (request, reply) => B
         (B((act) => act.execute(`${basePath}${getPath(request)}`, request.params.video))(head))
         (filter(({ label }) => label === request.params.action))
-        (request.params.video)
+        (actions)
     });
   }
 };
