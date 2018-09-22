@@ -1,44 +1,26 @@
 'use strict';
 
-const fs = require('fs');
-const util = require('util');
-const exec = util.promisify(require('child_process').exec);
-const Path = require('path');
-
-const ReadDir = (path) =>
-  new Promise((resolve, reject) => {
-    fs.readdir(path, (err, files) => {
-      if (err) {
-        reject(err);
-      }
-      else {
-        resolve(files);
-      }
-    });
-  });
-
-const CheckDir = (path) => fs.lstatSync(path).isDirectory();
+const { promisify } = require('util');
+const execPromisify = promisify(require('child_process').exec);
+const { run } = require('node-cmd');
+const launchOmxplayer = 'omxplayer -o hdmi ';
+const killOmxplayer = 'killall omxplayer.bin';
 
 const AdaptPath = (path) => path
-  .replace(/\s/g,'\\ ')
-  .replace(/\[/g,'\\[')
-  .replace(/\]/g,'\\]')
-  .replace(/\(/g,'\\(')
-  .replace(/\)/g,'\\)');
+  .replace(/\s/g, '\\ ')
+  .replace(/\[/g, '\\[')
+  .replace(/\]/g, '\\]')
+  .replace(/\(/g, '\\(')
+  .replace(/\)/g, '\\)');
 
-const StartVideo = async (video) => {
+const startVideo = (cmd) => (video) => {
   console.log('reproducir' + AdaptPath(video));
-  return new Promise((resolve, reject) => {
-    const childProcess = exec(`omxplayer -o hdmi ${AdaptPath(video)}`, (error, stdout, stderr) => {
-      if (error) {
-        reject({ stdout: '', stderr: `No es posible arrancar: ${video}` });
-      }
-    });
-    setTimeout(() => {
-      resolve({ stdout: `Reproduciendo: ${video}`, stderr: '' });
-    }, 500);
-  });
+  const process = run(cmd + AdaptPath(video));
+  return process
+    ? Promise.resolve({ stdout: 'reproducir' + AdaptPath(video) })
+    : Promise.reject({ stderr: 'reproducir' + AdaptPath(video) });
 };
-const StopVideo = async (video) => await exec(`killall omxplayer.bin`);
 
-module.exports = { ReadDir, StartVideo, StopVideo, CheckDir };
+const stopVideo = cmd => async (video) => await execPromisify(cmd);
+
+module.exports = { startVideo, stopVideo };

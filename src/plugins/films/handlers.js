@@ -1,53 +1,52 @@
 'use strict';
-const { basePath } = require('../../config/index');
-const { ReadDir, StartVideo, StopVideo, CheckDir } = require('./helper');
+const fs = require('fs');
 const Boom = require('boom');
 const { assign } = require('lodash');
-const { getOr } = require('lodash/fp');
-const Config = require('../../config/index');
-const getPath = getOr('/', 'payload.path');
-const FilterHideFiles = (file) => file.match(/^[^.].*/);  //No tengo que dejar pasar nada que empiece por .
+const { toEither, pipe, map, reject, compose: B, splitOn, last, maybe } = require('sanctuary');
+const { basePath } = require('../../config/index');
+const { startVideo, stopVideo } = require('./helper');
+
+// const FilterHideFiles = (file) => /.*[^.].*/.test(file);  //No tengo que dejar pasar nada que empiece por .
+const FilterHideFiles = pipe([splitOn('/'), last, maybe(false)((str) => /^[[.].*/.test(str))]);  //No tengo que dejar pasar nada que empiece por .
+const resolveBasePath = (dirPath) => dirPath ? `${basePath}/${dirPath}` : basePath;
+const pretiffyNames = (names) => names.map(name => ({ 'original': name, 'pretty': pipe([splitOn('/'), last])(name) }));
+const addDirectory = (files) => files.map(file => assign(file, { isDirectory: fs.lstatSync(file.original).isDirectory() }));
+const readDir = (path) => {
+  try {
+    return fs.readdirSync(path).map(dir => path.concat(`/${dir}`));
+  } catch (error) {
+    return null;
+  }
+};
+const scanDir = B(readDir)(resolveBasePath);
+const trace = label => x => {
+  console.log(label, x);
+  return x;
+};
 
 const Play = {
   execute(path, video) {
     console.log(`path ${path} video ${video}`);
-    return StartVideo(`${path}${video}`)
-      .then(({ stdout, stderr }) => `${video} reproduciendo`)
-      .catch(({ stdout, stderr }) => {
-        return Boom.conflict(stderr);
-      });
+    return startVideo('omxplayer -o hdmi ')(`${path}${video}`);
   },
   label: 'play',
 };
 
 const Stop = {
   execute(video) {
-    return StopVideo(video)
-      .then(({ stdout, stderr }) => `${video} parado`)
-      .catch(({ stdout, stderr }) => {
-        return Boom.conflict(stderr);
-      });
+    console.log(`stop video ${video}`);
+    return stopVideo('killall omxplayer.bin')(video);
   },
   label: 'stop',
 };
 
-const Actions = [Play, Stop];
+const actions = [Play, Stop];
+const readFilmsInDir = pipe([
+  scanDir,
+  toEither(Boom.conflict('Error reading the path')),
+  map(reject(FilterHideFiles)),
+  map(pretiffyNames),
+  map(addDirectory),
+]);
 
-const GetFilms = (request, reply) => {
-  const path = request.params.dirPath ? `${Config.basePath}/${request.params.dirPath}` : Config.basePath;
-  return ReadDir(path)
-    .then((files) => files.filter(FilterHideFiles))
-    .then((files) => files.map((file) => ({ 'original': file, 'pretty': file })))
-    .then((files) => files.map((file) => assign(file, { isDirectory: CheckDir(`${path}/${file.original}`) })))
-    .catch((err) => {
-      throw new Error('Error al recuperar los ficheros');
-    });
-};
-
-const LaunchAction = (request, reply) => {
-
-  const acction = Actions.filter(({ label }) => label === request.params.action);
-  return acction[0].execute(`${basePath}${getPath(request)}`, request.params.video);
-};
-
-module.exports = { GetFilms, LaunchAction };
+module.exports = { readFilmsInDir, actions };
