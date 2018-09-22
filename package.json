@@ -15,18 +15,18 @@
   "author": "Paco",
   "license": "ISC",
   "devDependencies": {
-    "eslint": "^4.13.1",
+    "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^12.1.0",
-    "eslint-plugin-import": "^2.8.0",
-    "jest": "^23.2.0",
-    "nodemon": "^1.13.3"
+    "eslint-plugin-import": "^2.14.0",
+    "jest": "^23.6.0",
+    "nodemon": "^1.18.4"
   },
   "dependencies": {
-    "boom": "^7.1.1",
+    "boom": "^7.2.0",
     "glue": "^5.0.0",
-    "hapi": "^17.1.1",
-    "joi": "^13.0.2",
-    "lodash": "^4.17.5",
+    "hapi": "^17.5.4",
+    "joi": "^13.6.0",
+    "lodash": "^4.17.11",
     "node-cmd": "^3.0.0",
     "proxyquire": "^2.1.0",
     "sanctuary": "^0.15.0"
